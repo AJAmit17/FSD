@@ -1,0 +1,45 @@
+const express = require("express");
+
+const app = express();
+app.use(express.json());
+
+// Define a simple "database" of products in memory.
+let products = [
+  { id: 1, name: "Laptop", price: 1200 },
+  { id: 2, name: "Mouse", price: 25 },
+  { id: 3, name: "Keyboard", price: 75 },
+];
+
+app.get("/api/products", (req, res) => {
+  res.json(products);
+});
+
+app.get("/api/products/:id", (req, res) => {
+  const product = products.find((p) => p.id === parseInt(req.params.id));
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found." });
+  }
+
+  res.json(product);
+});
+
+app.post("/api/products", (req, res) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({ message: "Name and price are required." });
+  }
+
+  const newProduct = {
+    id: products.length > 0 ? products[products.length - 1].id + 1 : 1,
+    name: req.body.name,
+    price: req.body.price,
+  };
+
+  products.push(newProduct);
+
+  res.status(201).json(newProduct);
+});
+
+app.listen(5000, () => {
+  console.log(`Express.js API is running on http://localhost:5000`);
+});
